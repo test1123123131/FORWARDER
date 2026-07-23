@@ -9,6 +9,7 @@ class Config:
     API_ID = int(os.getenv("API_ID", 0))
     API_HASH = os.getenv("API_HASH", "")
     SESSION_NAME = os.getenv("SESSION_NAME", "forwarder_session")
+    SESSION_STRING = os.getenv("SESSION_STRING", "")
 
     # Target channel
     TARGET_CHANNEL = os.getenv("TARGET_CHANNEL", "")
@@ -31,8 +32,6 @@ class Config:
             errors.append("API_ID is not set")
         if not cls.API_HASH:
             errors.append("API_HASH is not set")
-        if not cls.TARGET_CHANNEL:
-            errors.append("TARGET_CHANNEL is not set")
         if not cls.OWNER_ID:
             errors.append("OWNER_ID is not set")
         if errors:

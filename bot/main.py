@@ -4,6 +4,7 @@ import sys
 import os
 
 from pyrogram import Client, filters
+from pyrogram.session import StringSession
 
 from bot.config import Config
 from bot.database import Database
@@ -15,7 +16,17 @@ logger = logging.getLogger(__name__)
 
 
 def build_app() -> Client:
-    """Create and configure the Pyrogram client."""
+    """Create and configure the Pyrogram client.
+    Supports both file-based session and StringSession (for cloud deployment).
+    """
+    if Config.SESSION_STRING:
+        return Client(
+            name=Config.SESSION_NAME,
+            api_id=Config.API_ID,
+            api_hash=Config.API_HASH,
+            workdir=Config.DATA_DIR,
+            session=StringSession(Config.SESSION_STRING),
+        )
     return Client(
         name=Config.SESSION_NAME,
         api_id=Config.API_ID,
@@ -56,11 +67,11 @@ async def main():
         try:
             await app.send_message(
                 Config.OWNER_ID,
-                "🚀 **Forwarder Bot Started**\n\n"
-                f"  👤 Account: `{me.first_name}`\n"
-                f"  📡 Sources: `{db.get_source_count()}`\n"
-                f"  🎯 Target: `{db.get_target_channel()}`\n"
-                f"  ⚡ Status: `{'ON' if db.is_enabled() else 'OFF'}`\n\n"
+                "**Forwarder Bot Started**\n\n"
+                f"  Account: `{me.first_name}`\n"
+                f"  Sources: `{db.get_source_count()}`\n"
+                f"  Target: `{db.get_target_channel()}`\n"
+                f"  Status: `{'ON' if db.is_enabled() else 'OFF'}`\n\n"
                 "Send /panel to manage.",
             )
         except Exception as e:
@@ -79,8 +90,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    from pyrogram import idle  # noqa: keep import for fallback
-
     loop = asyncio.get_event_loop_policy().new_event_loop()
     asyncio.set_event_loop(loop)
     try:
